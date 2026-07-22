@@ -1,0 +1,85 @@
+[
+  {
+    "type": "function",
+    "name": "rulesetHash",
+    "inputs": [],
+    "outputs": [
+      { "name": "", "type": "string" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setRulesetHash",
+    "inputs": [
+      { "name": "hash", "type": "string" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getCompositeScore",
+    "inputs": [
+      { "name": "user", "type": "string" }
+    ],
+    "outputs": [
+      { "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setCompositeScore",
+    "inputs": [
+      { "name": "user", "type": "string" },
+      { "name": "scoreWad", "type": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getComponentScore",
+    "inputs": [
+      { "name": "user", "type": "string" },
+      { "name": "factorId", "type": "uint8" }
+    ],
+    "outputs": [
+      { "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setComponentScore",
+    "inputs": [
+      { "name": "user", "type": "string" },
+      { "name": "factorId", "type": "uint8" },
+      { "name": "scoreWad", "type": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getCreditEvent",
+    "inputs": [
+      { "name": "user", "type": "string" }
+    ],
+    "outputs": [
+      { "name": "", "type": "uint256[]" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setCreditEvent",
+    "inputs": [
+      { "name": "user", "type": "string" },
+      { "name": "params", "type": "uint256[]" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  }
+]
