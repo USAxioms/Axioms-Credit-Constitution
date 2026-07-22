@@ -67,3 +67,60 @@ Config versions should remain backward compatible unless thresholds change.
 # Version Numbering
 
 AXIOMS uses a four-part semantic structure:
+MAJOR.MINOR.PATCH.REVISION
+### MAJOR
+Fundamental changes to scoring philosophy or architecture.
+
+### MINOR
+New features, factor additions, or structural improvements.
+
+### PATCH
+Bug fixes, clarifications, or minor adjustments.
+
+### REVISION
+Internal updates that do not affect scoring output.
+
+---
+
+# Examples
+
+### Engine Version Example
+`E1.2.0`  
+- Added API endpoint  
+- No change to scoring math  
+
+### Ruleset Version Example
+`R2.0.0`  
+- Introduced new factor  
+- Updated constitutional scoring principles  
+
+### Config Version Example
+`C1.1.0`  
+- Adjusted utilization thresholds  
+- No change to factor weights  
+
+---
+
+# Version Disclosure Requirement
+
+Any organization using AXIOMS to compute scores **must disclose**:
+
+- The Engine Version  
+- The Ruleset Version  
+- The Config Version  
+
+This is required to maintain transparency and trust.
+
+---
+
+# Summary
+
+The constitutional versioning model ensures:
+
+- Deterministic scoring  
+- Transparent updates  
+- Auditable changes  
+- Enterprise reliability  
+- Public trust  
+
+All changes must be documented and versioned according to this standard.
