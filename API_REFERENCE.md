@@ -1,5 +1,3 @@
-`markdown
-
 API Reference (Simplified)
 
 POST /score
