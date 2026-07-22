@@ -1,0 +1,85 @@
+{
+  "version": "1.0.0",
+  "description": "Statutory anchors for AXIOMS scoring constitution. Used in explanations and compliance mapping.",
+
+  "fcra": {
+    "section_602": "Congressional findings and purpose",
+    "section_603": "Definitions",
+    "section_604": "Permissible purposes of consumer reports",
+    "section_605": "Obsolescence rules for derogatory information",
+    "section_607": "Compliance procedures",
+    "section_609": "Disclosures to consumers",
+    "section_611": "Reinvestigation of disputed information",
+    "section_615": "Adverse action notices",
+    "section_623": "Duties of furnishers of information"
+  },
+
+  "ecoa": {
+    "section_1691": "Prohibition against discrimination",
+    "reg_b": {
+      "creditworthiness_factors": [
+        "payment history",
+        "credit utilization",
+        "credit history length",
+        "credit mix"
+      ],
+      "prohibited_factors": [
+        "race",
+        "color",
+        "religion",
+        "national origin",
+        "sex",
+        "marital status",
+        "age (with exceptions)",
+        "receipt of public assistance"
+      ]
+    }
+  },
+
+  "cfpb_methodology_2023": {
+    "weights": {
+      "payment_history_pct": 35,
+      "utilization_pct": 30,
+      "history_length_pct": 15,
+      "credit_mix_pct": 10
+    },
+    "notes": [
+      "Payment history is the most predictive factor.",
+      "Utilization is highly correlated with default risk.",
+      "Longer credit histories improve score stability.",
+      "Diverse credit types improve predictiveness."
+    ]
+  },
+
+  "fico_public": {
+    "published_weights": {
+      "payment_history_pct": 35,
+      "utilization_pct": 30,
+      "history_length_pct": 15,
+      "credit_mix_pct": 10
+    },
+    "notes": [
+      "These weights are publicly disclosed.",
+      "Exact algorithms are proprietary and not replicated."
+    ]
+  },
+
+  "mapping": {
+    "payment_history": {
+      "statutes": ["fcra.section_605", "fcra.section_623", "cfpb_methodology_2023.weights.payment_history_pct"],
+      "description": "Anchored to FCRA obsolescence rules and furnishers' duties."
+    },
+    "utilization": {
+      "statutes": ["cfpb_methodology_2023.weights.utilization_pct"],
+      "description": "Anchored to CFPB methodology and public FICO disclosures."
+    },
+    "history_length": {
+      "statutes": ["cfpb_methodology_2023.weights.history_length_pct"],
+      "description": "Anchored to CFPB methodology regarding predictive stability."
+    },
+    "credit_mix": {
+      "statutes": ["cfpb_methodology_2023.weights.credit_mix_pct"],
+      "description": "Anchored to CFPB methodology regarding credit diversity."
+    }
+  }
+}
