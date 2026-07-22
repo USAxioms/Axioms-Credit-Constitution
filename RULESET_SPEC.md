@@ -69,3 +69,134 @@ Each factor produces:
 | Penalty          | 0.10         |
 
 Composite Score Formula:
+
+Composite = Σ (FactorScore_i * Weight_i)
+All math uses WAD precision (1e18).
+
+---
+
+# Factor Definitions
+
+## 1. Payment History
+Evaluates the user’s record of on‑time vs late payments.
+
+Inputs:
+- Total payments
+- Late payments
+- Severe delinquencies
+
+Config:
+- payment_history.json
+
+Output:
+- Score decreases with late payments
+- Severe delinquencies trigger derogatory flag
+
+---
+
+## 2. Utilization
+Measures how much credit the user is using relative to their limit.
+
+Inputs:
+- Total credit limit
+- Current balance
+
+Config:
+- utilization.json
+
+Output:
+- Score decreases as utilization increases
+- High utilization may trigger derogatory flag
+
+---
+
+## 3. History Length
+Evaluates how long the user has maintained credit accounts.
+
+Inputs:
+- Age of oldest account
+- Average account age
+
+Config:
+- history_length.json
+
+Output:
+- Longer history increases score
+- Very short history may reduce score
+
+---
+
+## 4. Credit Mix
+Evaluates diversity of credit types.
+
+Inputs:
+- Revolving accounts
+- Installment accounts
+- Open accounts
+
+Config:
+- credit_mix.json
+
+Output:
+- More diverse credit mix increases score
+
+---
+
+## 5. Penalty
+Applies constitutional penalties for derogatory events.
+
+Inputs:
+- Bankruptcies
+- Charge-offs
+- Collections
+- Hard inquiries
+
+Config:
+- penalty.json
+
+Output:
+- Penalties reduce score
+- Severe events trigger derogatory flag
+
+---
+
+# Config Files
+
+Each factor uses a JSON config file stored in:
+ruleset/configs/
+Config files define:
+- Thresholds
+- Bands
+- Decay curves
+- Penalty values
+- Explanations
+
+Config Version:
+**C1.0.0**
+
+---
+
+# Deterministic Scoring Flow
+
+1. Load ruleset manifest  
+2. Load factor configs  
+3. Compute each factor independently  
+4. Apply WAD weights  
+5. Sum weighted factors  
+6. Produce composite score  
+7. Optionally write to contract  
+
+All steps are deterministic and auditable.
+
+---
+
+# Constitutional Guarantees
+
+- Scores are reproducible  
+- Rules are published  
+- Weights are explicit  
+- Versions are documented  
+- No hidden logic  
+- No proprietary black boxes  
+
+This is the foundation of transparent scoring.
