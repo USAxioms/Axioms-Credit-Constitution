@@ -1,0 +1,48 @@
+{
+  "version": "1.0.0",
+  "description": "Penalties and bonuses used across AXIOMS scoring constitution (WAD-scaled)",
+
+  "payment_history": {
+    "thin_file_score_wad": "650000000000000000",
+    "streak_rehab": {
+      "24_plus_wad": "150000000000000000",
+      "12_plus_wad": "80000000000000000",
+      "6_plus_wad":  "30000000000000000"
+    },
+    "penalty_cap_wad": "600000000000000000"
+  },
+
+  "utilization": {
+    "zero_balance_bonus_max_wad": "50000000000000000",
+    "highest_card_penalty": {
+      "threshold_wad": "90000000000000000",
+      "slope_wad":     "500000000000000000"
+    },
+    "installment_paid_down_weight_wad": "300000000000000000"
+  },
+
+  "history_length": {
+    "thin_file_penalty": {
+      "none_wad": "400000000000000000",
+      "few_wad":  "200000000000000000"
+    },
+    "new_account_penalty": {
+      "under_6_months_wad":  "100000000000000000",
+      "under_12_months_wad": "50000000000000000"
+    }
+  },
+
+  "credit_mix": {
+    "type_weights_wad": {
+      "revolving":   "300000000000000000",
+      "installment": "300000000000000000",
+      "mortgage":    "250000000000000000",
+      "open":        "150000000000000000"
+    },
+    "depth_bonus_wad": {
+      "strong": "80000000000000000",
+      "moderate": "40000000000000000"
+    },
+    "thin_file_discount_wad": "500000000000000000"
+  }
+}
