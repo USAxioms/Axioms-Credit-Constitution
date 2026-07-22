@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "description": "AXIOMS Credit Reporting Engine — Constitutional Ruleset",
+  "weights": {
+    "payment_history_bps": 3500,
+    "utilization_bps": 3000,
+    "history_length_bps": 1500,
+    "credit_mix_bps": 1000
+  },
+  "engines": {
+    "payment_history": "backend/engine/paymentHistory.ts",
+    "utilization": "backend/engine/utilization.ts",
+    "history_length": "backend/engine/historyLength.ts",
+    "credit_mix": "backend/engine/creditMix.ts"
+  },
+  "math": {
+    "wad_core": "backend/wad/wadMath.ts",
+    "wad_types": "backend/wad/wadTypes.ts"
+  },
+  "law": {
+    "fcra": "15 USC 1681 et seq.",
+    "ecoa": "15 USC 1691",
+    "cfpb_methodology": "2023",
+    "fico_weights": "Published"
+  },
+  "hashing": {
+    "algorithm": "keccak256",
+    "ruleset_hash": "<to-be-computed-by-env>"
+  },
+  "constitutional": {
+    "record": "ledger stores only WAD values + ruleset hash",
+    "ruleset": "this manifest defines the scoring constitution",
+    "runtime": "environment loads this version and executes deterministically"
+  }
+}
