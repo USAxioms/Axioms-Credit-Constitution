@@ -1,90 +1,73 @@
-// CREDIT HISTORY LENGTH ENGINE (WAD Backend Version)
-// Mirrors CRE_HistoryLength but runs entirely off-chain using WAD arithmetic.
-// Pure, deterministic, zero-dependency constitutional math.
+// HISTORY LENGTH ENGINE
+// Computes WAD‑scaled score for length of credit history.
+// Applies:
+// - age curve
+// - minimum age thresholds
+// - diminishing returns
+// Returns FactorResult.
 
-import {
-  WAD_ONE, WAD_ZERO,
-  wadMul, wadDiv, wadSubSat, wadMin, wadMax, wadToPctString
-} from "../wad/wadMath";
+import { FactorResult } from "../wad/wadTypes";
+import { WAD_ONE, wadClamp, wadMul } from "../wad/wadMath";
+import fs from "fs";
+import path from "path";
 
-import { FactorParams, FactorResult } from "../wad/wadTypes";
+export function evaluateHistoryLength(params: bigint[]): FactorResult {
+  // params[7] = monthsSinceFirstAccount
+  // params[8] = averageAccountAgeMonths
 
-export function evaluateHistoryLength(p: FactorParams): FactorResult {
-  const oldestMonths   = p[0];
-  const newestMonths   = p[1];
-  const avgAge_1e2     = p[2]; // average age * 100
-  const totalAccounts  = p[3];
-  const oldestClosed   = p[4];
+  const monthsSinceFirst = Number(params[7]);
+  const avgAgeMonths = Number(params[8]);
 
-  const maxPossible = WAD_ONE;
+  const base = path.join("backend", "ruleset", "v1.0.0");
+  const hist = JSON.parse(fs.readFileSync(path.join(base, "history_length.json"), "utf8"));
 
-  // Oldest account score (plateau at 84 months)
-  const bestOldest = oldestMonths > oldestClosed ? oldestMonths : oldestClosed;
+  const maxScore = WAD_ONE;
 
-  const oldestScore =
-    bestOldest >= 84n
-      ? WAD_ONE
-      : wadDiv(bestOldest, 84n);
+  // Convert months to years (WAD)
+  const yearsSinceFirst = BigInt(Math.floor(monthsSinceFirst / 12)) * WAD_ONE;
+  const avgAgeYears = BigInt(Math.floor(avgAgeMonths / 12)) * WAD_ONE;
 
-  // Average age score (plateau at 84 months)
-  const avgMonths = avgAge_1e2 / 100n;
+  // Minimum age threshold
+  const minAgeWad = BigInt(hist.minimum_age_years_wad);
 
-  const avgScore =
-    avgMonths >= 84n
-      ? WAD_ONE
-      : wadDiv(avgMonths, 84n);
-
-  // Newest account penalty
-  let newPenalty = WAD_ZERO;
-
-  if (newestMonths < 6n) {
-    newPenalty = 1n * (10n ** 17n); // 10%
-  } else if (newestMonths < 12n) {
-    newPenalty = 5n * (10n ** 16n); // 5%
+  if (yearsSinceFirst < minAgeWad) {
+    return {
+      factorName: "History Length",
+      componentScore: BigInt(hist.scores_wad.too_new),
+      maxPossible: maxScore,
+      derogatory: true,
+      explanation: `Credit history is too new: ${monthsSinceFirst} months since first account.`
+    };
   }
 
-  // Thin file penalty
-  let thinPenalty = WAD_ZERO;
+  // Age curve: diminishing returns
+  const curve = hist.age_curve_wad;
 
-  if (totalAccounts === 0n) {
-    thinPenalty = 4n * (10n ** 17n); // -40%
-  } else if (totalAccounts < 3n) {
-    thinPenalty = 2n * (10n ** 17n); // -20%
+  let score: bigint;
+
+  if (yearsSinceFirst >= BigInt(curve.excellent_threshold_wad)) {
+    score = BigInt(hist.scores_wad.excellent);
+  } else if (yearsSinceFirst >= BigInt(curve.good_threshold_wad)) {
+    score = BigInt(hist.scores_wad.good);
+  } else if (yearsSinceFirst >= BigInt(curve.fair_threshold_wad)) {
+    score = BigInt(hist.scores_wad.fair);
+  } else {
+    score = BigInt(hist.scores_wad.poor);
   }
 
-  // Composite weighting:
-  // 40% oldest, 50% average, 10% newest
-  const newestScore =
-    newestMonths >= 24n
-      ? WAD_ONE
-      : wadDiv(newestMonths, 24n);
-
-  let raw =
-    wadMul(oldestScore, 4n * (10n ** 17n)) +
-    wadMul(avgScore,    5n * (10n ** 17n)) +
-    wadMul(newestScore, 1n * (10n ** 17n));
-
-  // Apply penalties
-  raw = wadSubSat(raw, newPenalty);
-  raw = wadSubSat(raw, thinPenalty);
-
-  const componentScore = wadMin(WAD_ONE, raw);
-
-  const explanation =
-    "HISTORY LENGTH (15% weight) | " +
-    "oldest_account=" + bestOldest + "mo | " +
-    "average_age=" + avgMonths + "mo | " +
-    "newest_account=" + newestMonths + "mo | " +
-    "total_accounts=" + totalAccounts + " | " +
-    "thin_file_penalty=-" + wadToPctString(thinPenalty) + "% | " +
-    "new_account_penalty=-" + wadToPctString(newPenalty) + "% | " +
-    "component_score=" + wadToPctString(componentScore) + "%";
+  // Clamp score
+  score = wadClamp(score, 0n, maxScore);
 
   return {
-    componentScore,
-    maxPossible,
-    derogatory: false,
-    factorName: "Credit History Length",
-    explanation
+    factorName: "History Length",
+    componentScore: score,
+    maxPossible: maxScore,
+    derogatory: score < maxScore,
+    explanation: [
+      `Months since first account: ${monthsSinceFirst}`,
+      `Average account age (months): ${avgAgeMonths}`,
+      `Years since first account (WAD): ${yearsSinceFirst}`,
+      `Score derived from age curve thresholds.`
+    ].join("\n")
   };
 }
