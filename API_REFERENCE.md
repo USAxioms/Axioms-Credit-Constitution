@@ -1,5 +1,3 @@
-Got you, ADVANCEER — here is a much simpler, cleaner, minimal version of the API reference, all inside one single code block, no fluff, no enterprise extras, just the essentials.
-
 `markdown
 
 API Reference (Simplified)
