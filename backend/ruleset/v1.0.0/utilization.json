@@ -1,42 +1,18 @@
 {
-  "version": "1.0.0",
-  "description": "Non-linear utilization curve definitions for AXIOMS scoring constitution (WAD-scaled)",
-
   "aggregate_curve": {
-    "optimal_threshold_wad": "90000000000000000",
-    "good_threshold_wad":    "290000000000000000",
-    "moderate_threshold_wad":"490000000000000000",
-    "high_threshold_wad":    "740000000000000000",
-    "very_high_threshold_wad":"890000000000000000"
+    "optimal_threshold_wad": "300000000000000000",
+    "good_threshold_wad": "500000000000000000",
+    "moderate_threshold_wad": "700000000000000000",
+    "high_threshold_wad": "900000000000000000",
+    "very_high_threshold_wad": "1100000000000000000"
   },
 
   "scores_wad": {
     "optimal": "1000000000000000000",
-    "good":    "920000000000000000",
-    "moderate_base": "850000000000000000",
-    "high_base":     "700000000000000000",
-    "very_high_base":"430000000000000000",
-    "max_penalty_base":"200000000000000000"
-  },
-
-  "slopes_wad": {
-    "moderate_slope": "400000000000000000",
-    "high_slope":     "300000000000000000",
-    "very_high_slope":"250000000000000000",
-    "max_penalty_slope":"180000000000000000"
-  },
-
-  "highest_card_penalty": {
-    "threshold_wad": "90000000000000000",
-    "slope_wad":     "500000000000000000"
-  },
-
-  "zero_balance_bonus": {
-    "max_bonus_wad": "50000000000000000"
-  },
-
-  "installment_curve": {
-    "base_score_wad": "700000000000000000",
-    "paid_down_weight_wad": "300000000000000000"
+    "good": "900000000000000000",
+    "moderate_base": "700000000000000000",
+    "high_base": "500000000000000000",
+    "very_high_base": "300000000000000000",
+    "max_penalty_base": "100000000000000000"
   }
 }
