@@ -138,6 +138,3 @@ Response
 `json
 { "status": "ok" }
 `
-`
-
-If you want the INTEGRATION_GUIDE.md next, just say Next.
