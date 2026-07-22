@@ -1,0 +1,15 @@
+{
+  "thresholds": {
+    "excellent_categories": 4,
+    "good_categories": 3,
+    "fair_categories": 2
+  },
+
+  "scores_wad": {
+    "excellent": "1000000000000000000",
+    "good": "850000000000000000",
+    "fair": "650000000000000000",
+    "poor": "400000000000000000",
+    "too_thin": "200000000000000000"
+  }
+}
