@@ -1,0 +1,30 @@
+Axioms-Credit-Constitution License v1.0
+Copyright (c) 2026 ADVANCEER
+
+Permission is hereby granted to any licensed organization (“Licensee”) to use,
+integrate, modify, and extend the Axioms-Credit-Constitution Scoring Engine
+(“Software”) within their own products and services, subject to the following
+conditions:
+
+1. Licensee MAY:
+   - Use the Software internally or externally.
+   - Integrate the Software into commercial products.
+   - Modify or extend the Software for their own use.
+   - Deploy the Software in any environment (on‑chain or off‑chain).
+   - Create derivative scoring rulesets based on AXIOMS.
+
+2. Licensee MAY NOT:
+   - Redistribute the Software as a standalone product.
+   - Sell the Software or any derivative as a competing scoring engine.
+   - Claim ownership of the AXIOMS architecture or scoring methodology.
+   - Remove attribution to ADVANCEER in source headers.
+
+3. Transparency Requirement:
+   If Licensee uses AXIOMS to produce scores for end‑users, Licensee must
+   disclose the version of the ruleset used (“Ruleset Version”) and must not
+   misrepresent the scoring methodology.
+
+4. No Warranty:
+   The Software is provided “as is” without warranty of any kind.
+
+By using the Software, Licensee agrees to these terms.
