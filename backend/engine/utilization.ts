@@ -1,108 +1,81 @@
-// CREDIT UTILIZATION ENGINE (WAD Backend Version)
-// Mirrors CRE_Utilization but runs entirely off-chain using WAD arithmetic.
-// Pure, deterministic, zero-dependency constitutional math.
+// UTILIZATION ENGINE
+// Computes WAD‑scaled score for credit utilization.
+// Applies:
+// - aggregate utilization curve
+// - threshold scoring
+// - penalty ramps
+// Returns FactorResult.
 
-import {
-  WAD_ONE, WAD_ZERO,
-  wadMul, wadDiv, wadSubSat, wadMin, wadMax, wadToPctString
-} from "../wad/wadMath";
+import { FactorResult } from "../wad/wadTypes";
+import { WAD_ONE, wadClamp } from "../wad/wadMath";
+import fs from "fs";
+import path from "path";
 
-import { FactorParams, FactorResult } from "../wad/wadTypes";
+export function evaluateUtilization(params: bigint[]): FactorResult {
+  // params[5] = totalCreditLimitWad
+  // params[6] = totalBalanceWad
 
-export function evaluateUtilization(p: FactorParams): FactorResult {
-  const totalLimit   = p[0];
-  const totalBal     = p[1];
-  const revLimit     = p[2];
-  const revBal       = p[3];
-  const highCardUtil = p[4]; // * 1e4
-  const cardsZero    = p[5];
-  const totalCards   = p[6];
-  const instBal      = p[7];
-  const instOrig     = p[8];
+  const totalLimit = params[5];
+  const totalBalance = params[6];
 
-  const maxPossible = WAD_ONE;
+  // Load utilization curve config
+  const base = path.join("backend", "ruleset", "v1.0.0");
+  const util = JSON.parse(fs.readFileSync(path.join(base, "utilization.json"), "utf8"));
 
-  // Aggregate utilization
-  const aggUtil = totalLimit > 0n
-    ? wadDiv(totalBal, totalLimit)
-    : WAD_ZERO;
+  const maxScore = WAD_ONE;
 
-  // Non-linear utilization curve
-  let aggScore: bigint;
+  // If no credit limit → treat as neutral (not penalized)
+  if (totalLimit === 0n) {
+    return {
+      factorName: "Utilization",
+      componentScore: maxScore,
+      maxPossible: maxScore,
+      derogatory: false,
+      explanation: "No revolving credit limit detected; utilization treated as optimal."
+    };
+  }
 
-  if (aggUtil <= 9n * (10n ** 16n)) {
-    aggScore = WAD_ONE; // optimal
-  } else if (aggUtil <= 29n * (10n ** 16n)) {
-    aggScore = 92n * (10n ** 16n); // good
-  } else if (aggUtil <= 49n * (10n ** 16n)) {
-    const over30 = aggUtil - 30n * (10n ** 16n);
-    aggScore = wadSubSat(85n * (10n ** 16n), wadMul(over30, 4n * (10n ** 17n)) / (19n * (10n ** 16n)));
-  } else if (aggUtil <= 74n * (10n ** 16n)) {
-    const over50 = aggUtil - 50n * (10n ** 16n);
-    aggScore = wadSubSat(70n * (10n ** 16n), wadMul(over50, 3n * (10n ** 17n)) / (24n * (10n ** 16n)));
-  } else if (aggUtil <= 89n * (10n ** 16n)) {
-    const over75 = aggUtil - 75n * (10n ** 16n);
-    aggScore = wadSubSat(43n * (10n ** 16n), wadMul(over75, 25n * (10n ** 16n)) / (14n * (10n ** 16n)));
+  // utilization = balance / limit (WAD)
+  const utilization = totalBalance * WAD_ONE / totalLimit;
+
+  // Determine score bucket
+  let score: bigint;
+  let bucket: string;
+
+  if (utilization <= BigInt(util.aggregate_curve.optimal_threshold_wad)) {
+    score = BigInt(util.scores_wad.optimal);
+    bucket = "Optimal";
+  } else if (utilization <= BigInt(util.aggregate_curve.good_threshold_wad)) {
+    score = BigInt(util.scores_wad.good);
+    bucket = "Good";
+  } else if (utilization <= BigInt(util.aggregate_curve.moderate_threshold_wad)) {
+    score = BigInt(util.scores_wad.moderate_base);
+    bucket = "Moderate";
+  } else if (utilization <= BigInt(util.aggregate_curve.high_threshold_wad)) {
+    score = BigInt(util.scores_wad.high_base);
+    bucket = "High";
+  } else if (utilization <= BigInt(util.aggregate_curve.very_high_threshold_wad)) {
+    score = BigInt(util.scores_wad.very_high_base);
+    bucket = "Very High";
   } else {
-    const over90 = aggUtil - 90n * (10n ** 16n);
-    aggScore = wadSubSat(20n * (10n ** 16n), wadMul(over90, 18n * (10n ** 16n)) / (10n * (10n ** 16n)));
+    score = BigInt(util.scores_wad.max_penalty_base);
+    bucket = "Max Penalty";
   }
 
-  // Highest-card utilization penalty
-  const highUtilWad = highCardUtil * (10n ** 14n);
-  let cardScore = WAD_ONE;
-
-  if (highUtilWad > 9n * (10n ** 16n)) {
-    const overThresh = highUtilWad - 9n * (10n ** 16n);
-    cardScore = wadSubSat(WAD_ONE, wadMul(overThresh, 5n * (10n ** 17n)) / (91n * (10n ** 16n)));
-  }
-
-  // Zero-balance bonus
-  let zeroBonus = WAD_ZERO;
-  if (totalCards > 0n && cardsZero > 0n) {
-    const zeroRate = wadDiv(cardsZero, totalCards);
-    zeroBonus = wadMul(zeroRate, 5n * (10n ** 16n)); // up to +5%
-  }
-
-  // Revolving score
-  const revScore = revLimit > 0n
-    ? aggScore
-    : WAD_ONE;
-
-  // Installment score
-  let instScore = WAD_ONE;
-  if (instOrig > 0n && instBal <= instOrig) {
-    const paidDown = wadDiv(instOrig - instBal, instOrig);
-    instScore = 7n * (10n ** 17n) + wadMul(paidDown, 3n * (10n ** 17n));
-  }
-
-  // Weighted composite: 70% revolving, 30% installment
-  let rawScore =
-    wadMul(revScore, 7n * (10n ** 17n)) +
-    wadMul(instScore, 3n * (10n ** 17n));
-
-  // Apply per-card penalty
-  rawScore = wadMul(rawScore, cardScore);
-
-  // Apply zero-balance bonus
-  const componentScore = wadMin(WAD_ONE, rawScore + zeroBonus);
-
-  const derogatory = aggUtil > 50n * (10n ** 16n);
-
-  const explanation =
-    "CREDIT UTILIZATION (30% weight) | " +
-    "aggregate_util=" + wadToPctString(aggUtil) + "% | " +
-    "revolving_util=" + (revLimit > 0n ? wadToPctString(wadDiv(revBal, revLimit)) : "N/A") + "% | " +
-    "highest_card_util=" + wadToPctString(highUtilWad) + "% | " +
-    "cards_at_zero=" + cardsZero + "/" + totalCards + " | " +
-    "zero_balance_bonus=+" + wadToPctString(zeroBonus) + "% | " +
-    "component_score=" + wadToPctString(componentScore) + "%";
+  // Clamp score to valid WAD range
+  score = wadClamp(score, 0n, maxScore);
 
   return {
-    componentScore,
-    maxPossible,
-    derogatory,
-    factorName: "Credit Utilization",
-    explanation
+    factorName: "Utilization",
+    componentScore: score,
+    maxPossible: maxScore,
+    derogatory: bucket !== "Optimal" && bucket !== "Good",
+    explanation: [
+      `Total Limit (WAD): ${totalLimit}`,
+      `Total Balance (WAD): ${totalBalance}`,
+      `Utilization (WAD): ${utilization}`,
+      `Bucket: ${bucket}`,
+      `Score derived from utilization curve thresholds.`
+    ].join("\n")
   };
 }
