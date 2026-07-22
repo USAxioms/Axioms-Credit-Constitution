@@ -1,4 +1,4 @@
-# Axioms-Credit-Constitution
+# Axioms-Credit-Constitution™
 
 Axioms-Credit-Constitution is the first transparent, deterministic, ruleset‑driven
 credit scoring engine designed for enterprise use. It establishes a constitutional
