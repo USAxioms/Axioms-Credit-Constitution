@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "description": "Exponential decay constants for derogatory event aging (WAD-scaled)",
+
+  "halflife_months": {
+    "120_plus": 60,
+    "90_plus": 48,
+    "60_plus": 36,
+    "30_plus": 24
+  },
+
+  "fcra_obsolescence": {
+    "months": 84,
+    "cap_factor_wad": "100000000000000000" 
+  },
+
+  "severity_weights_wad": {
+    "late_30":  "1000000000000000000",
+    "late_60":  "1500000000000000000",
+    "late_90":  "2000000000000000000",
+    "late_120": "2500000000000000000",
+    "chargeoff": "3000000000000000000"
+  },
+
+  "rehabilitation_wad": {
+    "streak_24_plus": "150000000000000000",
+    "streak_12_plus": "80000000000000000",
+    "streak_6_plus":  "30000000000000000"
+  },
+
+  "penalty_cap_wad": "600000000000000000"
+}
