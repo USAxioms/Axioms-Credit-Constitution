@@ -1,22 +1,10 @@
-// WAD Types & Shared Interfaces
-// Constitutional backend primitives for R³ Engine
+// WAD TYPES
+// Shared type definitions for AXIOMS scoring engine.
 
-export const WAD_ONE = 10n ** 18n;
-export const WAD_ZERO = 0n;
-
-// Component score output structure (mirrors ICREChild.evaluate)
 export interface FactorResult {
-  componentScore: bigint;   // WAD 0–1e18
-  maxPossible: bigint;      // always 1e18
-  derogatory: boolean;      // true if factor is negative
-  factorName: string;       // human-readable name
-  explanation: string;      // full explanation string
+  factorName: string;          // Human-readable name (e.g., "Payment History")
+  componentScore: bigint;      // WAD score for this factor
+  maxPossible: bigint;         // Maximum WAD score possible
+  derogatory: boolean;         // Whether this factor detected derogatory behavior
+  explanation: string;         // Human-readable explanation
 }
-
-// 16-parameter input array for each factor engine
-export type FactorParams = [
-  bigint, bigint, bigint, bigint,
-  bigint, bigint, bigint, bigint,
-  bigint, bigint, bigint, bigint,
-  bigint, bigint, bigint, bigint
-];
